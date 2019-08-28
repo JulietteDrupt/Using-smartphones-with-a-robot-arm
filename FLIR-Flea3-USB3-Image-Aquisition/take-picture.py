@@ -146,24 +146,17 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
                 #  serial numbers to keep images of one device from
                 #  overwriting those of another.
                     
-                    
-                print(type(image_result))
+                # Convert retrieved image to uint8 numpy array
                 row_bytes = float(len(image_result.GetData()))/float(image_result.GetWidth())
                 rawFrame = np.array(image_result.GetData(), dtype = "uint8").reshape((image_result.GetHeight(),image_result.GetWidth()))
+
+                # Convert image to BGR
                 im = cv2.cvtColor(rawFrame,cv2.COLOR_BAYER_BG2BGR)
-                #im = image_result.GetNDArray()
-                #cv2.namedWindow('im', cv2.WINDOW_NORMAL)
-                #plt.imshow(im,'gray'),plt.show()                    
-                #print(im.shape)                    
-                #cv2.imshow('im',im)
-                #print("Là ça devrait s'afficher...")
-                #k = cv2.waitKey(0) & 0xFF
-                #cv2.destroyAllWindows()
+
+                # Save image as 'camera.png'.
                 cv2.imwrite('camera.png',im)
                 print('Image saved as camera.png')
                     
-                #image_converted.Save(filename)
-                #print('Image saved at %s' % filename)
 
                 #  Release image
                 #

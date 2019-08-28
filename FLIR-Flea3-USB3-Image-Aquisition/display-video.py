@@ -74,13 +74,18 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
                     print('Image incomplete with image status %d ...' % image_result.GetImageStatus())
 
                 else:
+                    # Retrieve image width and height
                     width = image_result.GetWidth()
                     height = image_result.GetHeight()
 
+                    # Convert image to a uint8 numpy array
                     row_bytes = float(len(image_result.GetData()))/width
                     rawFrame = np.array(image_result.GetData(), dtype = "uint8").reshape(height,width)
-                    im = cv2.cvtColor(rawFrame,cv2.COLOR_BAYER_BG2BGR)                   
+                    # Convert image to BGR
+                    im = cv2.cvtColor(rawFrame,cv2.COLOR_BAYER_BG2BGR)  
+                    # Display image in the 'im' window                 
                     cv2.imshow('im',im)
+                    # Wait 10 milliseconds. 'q' is set as exit key.
                     if cv2.waitKey(10) & 0xFF == ord('q') :
                         break
                         
