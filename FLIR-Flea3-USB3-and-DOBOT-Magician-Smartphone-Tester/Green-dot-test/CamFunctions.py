@@ -184,7 +184,7 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
                     print('Image incomplete with image status %d ...' % image_result.GetImageStatus())
 
                 else:
-                    # Retriev image width and height
+                    # Retrieve image width and height
                     width = image_result.GetWidth()
                     height = image_result.GetHeight()
 
