@@ -17,9 +17,11 @@ print("Etat de la connexion / Connect status : {}] \n".format(CON_STR[state]))
 
 if (state == dType.DobotConnect.DobotConnect_NoError):
 
+    # Run camera in order to get the filename of the scenario to launch, as well as robot calibration parameters
     result, filename, z_min, ecran = Cfonct.run(api)
     print(filename)
 
+    # Read scenario filename and execute it.
     screen_size = None
     scrolling = False
     x,y,u,v = -1,-1,-1,-1

@@ -183,34 +183,50 @@ def acquire_images(cam, nodemap, nodemap_tldevice,api):
                     print('Image incomplete with image status %d ...' % image_result.GetImageStatus())
 
                 else:
+                    # Retrieve image width and height
                     width = image_result.GetWidth()
                     height = image_result.GetHeight()
 
+                    # Convert image to uint8 numpy array
                     row_bytes = float(len(image_result.GetData()))/width
                     rawFrame = np.array(image_result.GetData(), dtype = "uint8").reshape(height,width)
+                    # Convert image to BGR
                     im = cv2.cvtColor(rawFrame,cv2.COLOR_BAYER_BG2BGR)
                     
+                    # Display image in window 'im'
                     cv2.imshow('im',im)
                     k = cv2.waitKey(10) & 0xFF
-                    if k == ord('q') :
+                    if k == ord('q') : # Press 'q' to exit
+                        # Destroy all OpenCV windows
                         cv2.destroyAllWindows()
                         break
                     elif k == ord('c') :
                         print("Processing... Please wait... This will take less than a minute...")
+                        # Denoise image
                         dst = cv2.fastNlMeansDenoisingColored(im,None,10,10,7,21)
+                        # Calibrate camera
                         centroids = CamCalibrate(dst)
+                        # Retrieve screen size
                         screen_size = size(centroids)
+                        # Initialize robot
                         Dfonct.Init(api)
+                        # Get the heigh of the screen's plane
                         z_min = Dfonct.Calc_Z_Min(api)
                         Dfonct.Touch(api,z_min)
+                        # Calibrate robot
                         ecran = screen.screen(api,screen_size[0],screen_size[1])
                         Dfonct.Touch(api,z_min)
                         
                     elif k == ord('y') and centroids is not None :
+                        # Extract screen from the image
                         im2 = resizeScreen(im,centroids)
                         #cv2.imshow('resized',im2)
+
+                        # Compare screen image to all scenario start screens to find the correct one
                         i = sc.compareToAll(im2)
+                        # Retrieve scenario filename
                         scenariofile = sc.getFileName(i)
+                        # Destroy all OpenCV windows
                         cv2.destroyAllWindows()
                         break
 

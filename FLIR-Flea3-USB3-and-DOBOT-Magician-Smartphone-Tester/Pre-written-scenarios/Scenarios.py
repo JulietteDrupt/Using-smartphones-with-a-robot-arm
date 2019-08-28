@@ -34,6 +34,7 @@ def compareToIm(img1,img2) :
 
 # Compares screen to app screenshots and finds what app is the most likely
 def compareToAll(img2) :
+    # Load start screen images
     s1 = cv2.imread('./Scenarios/Images/s1.jpg')
     s2 = cv2.imread('./Scenarios/Images/s2.jpg')
     s3 = cv2.imread('./Scenarios/Images/s3.jpg')
@@ -42,9 +43,11 @@ def compareToAll(img2) :
     s6 = cv2.imread('./Scenarios/Images/s6.jpg')
     images = [s1,s2,s3,s4,s5,s6]
     ratios = []
+    # Compare to each of them
     for i in range(len(images)) :
         print("Comparing to image {} :".format(i+1))
         ratios.append(compareToIm(images[i],img2))
+    # Identify what image is the most similar to current screen
     maxi = max(ratios)
     i = ratios.index(maxi)
     print("App identified : {}".format(i+1))
