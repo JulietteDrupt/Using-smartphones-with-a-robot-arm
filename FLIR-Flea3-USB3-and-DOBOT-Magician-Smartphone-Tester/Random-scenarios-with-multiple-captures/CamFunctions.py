@@ -304,7 +304,7 @@ def acquire_images(cam, nodemap, nodemap_tldevice,api):
 
                             # Initialize robot
                             Dfonct.Init(api)
-                            # Get the heigh of the screen's plane
+                            # Get the height of the screen's plane
                             z_min = Dfonct.Calc_Z_Min(api)
                             Dfonct.Touch(api,z_min)
                             # Launch robot calibration
