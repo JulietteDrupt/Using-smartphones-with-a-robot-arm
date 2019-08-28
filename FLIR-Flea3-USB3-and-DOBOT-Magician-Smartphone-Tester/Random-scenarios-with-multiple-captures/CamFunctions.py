@@ -273,37 +273,53 @@ def acquire_images(cam, nodemap, nodemap_tldevice,api):
                     print('Image incomplete with image status %d ...' % image_result.GetImageStatus())
 
                 else:
+                    # Retrieve image width and height
                     width = image_result.GetWidth()
                     height = image_result.GetHeight()
 
+                    # Convert image to uint8 numpy array
                     row_bytes = float(len(image_result.GetData()))/width
                     rawFrame = np.array(image_result.GetData(), dtype = "uint8").reshape(height,width)
+                    # Convert image to BGR
                     im = cv2.cvtColor(rawFrame,cv2.COLOR_BAYER_BG2BGR)
                     
+                    # Display image in window 'im'
                     cv2.imshow('im',im)
                     k = cv2.waitKey(10) & 0xFF
-                    if k == ord('q') :
+                    if k == ord('q') : # Press 'q' to exit
                         cv2.destroyAllWindows()
                         break
                     elif k == ord('c') :
                         print("Processing... Please wait... This will take less than a minute...")
+                        # Denoise image
                         dst = cv2.fastNlMeansDenoisingColored(im,None,10,10,7,21)
+                        # Calibrate camera
                         centroids = CamCalibrate(dst)
-                        screen_size = size(centroids)
-                        if len(centroids == 3) :
+
+                        if len(centroids == 3) : # if camera calibration went well
+                            # Retrieve screen size
+                            screen_size = size(centroids)
+                            # Destroy all OpenCV windows
                             cv2.destroyAllWindows()
+
+                            # Initialize robot
                             Dfonct.Init(api)
+                            # Get the heigh of the screen's plane
                             z_min = Dfonct.Calc_Z_Min(api)
                             Dfonct.Touch(api,z_min)
+                            # Launch robot calibration
                             ecran = screen.screen(api,screen_size[0],screen_size[1])
                             Dfonct.Touch(api,z_min)
+                            # Move robot offscreen
                             [xf,yf] = ecran.Calc_Coordinates(-50,-10)
                             Dfonct.Movement(api,xf,yf,z_min + 20)
 
                         
                     elif k == ord('y') and centroids is not None :
+                        # If a previous image of the screen was taken, it is copied to 'previous'
                         if current is not None :
                             previous = np.copy(current)
+                        # Extract image of the screen, assign it to 'current' and display it
                         im2 = resizeScreen(im,centroids)
                         cv2.imshow('resized',im2)
                         current = np.copy(im2)
@@ -311,22 +327,30 @@ def acquire_images(cam, nodemap, nodemap_tldevice,api):
                     elif k == ord('e') and im2 is not None :
 
                         mask = None
+
+                        # If a 'previous' image exists, compare it to 'current'. If new objects appeared, the resulting mask will hide everything but them. Otherwise returned mask will be None (ie if 'current' screen is unchanged or completely different).
                         if previous is not None :
                             mask = imcp.compareImages(previous, current)
+                            # Display mask in case it is not None
                             if mask is not None :
                                 cv2.imshow("mask",mask)
 
+                        # Segment 'current' image with mask. If mask is None no mask is applied to 'current'.
                         markers,stats,centroidsTouches = segmentation(im2, mask)
+                        # Display resulting object markers
                         cv2.imshow('segmentation',markers)
+                        # Select what are most likely graphical objects beyond those detected by segmentation and display their centroids
                         centroidsTouches = getOnlyTouches(stats,centroidsTouches)
                         showObjects(im2,centroidsTouches)
                         cv2.imshow('touches',im2)
+                        # Convert the object's coordinates to the red dot's basis.
                         centroidsTouches = TouchCoordinates(centroidsTouches,centroids)
 
 
                     elif k == ord('r') and centroids is not None :
 
                         if centroidsTouches is not None :
+                            # Pick a random object beyond those detected, and touch it.
                             i = random.randint(0,len(centroidsTouches)-1)                            
 
                             touche = centroidsTouches[i]
@@ -335,6 +359,7 @@ def acquire_images(cam, nodemap, nodemap_tldevice,api):
                             [xf,yf] = ecran.Calc_Coordinates(x,y)
                             Dfonct.Movement(api,xf,yf,z_min + 20)
                             Dfonct.Touch(api,z_min)
+                            # Move offscreen.
                             [xf,yf] = ecran.Calc_Coordinates(-50,-10)
                             Dfonct.Movement(api,xf,yf,z_min + 20)
 

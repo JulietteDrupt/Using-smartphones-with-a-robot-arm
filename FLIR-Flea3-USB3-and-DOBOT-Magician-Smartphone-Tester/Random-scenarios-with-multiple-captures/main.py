@@ -17,6 +17,7 @@ print("Etat de la connexion / Connect status : {}] \n".format(CON_STR[state]))
 
 if (state == dType.DobotConnect.DobotConnect_NoError):
 
+    # Run camera
     result,centroidsTouches,screen_size = Cfonct.run(api)
 
 #Disconnect Dobot
