@@ -19,11 +19,12 @@ print("Etat de la connexion / Connect status : {}] \n".format(CON_STR[state]))
 
 if (state == dType.DobotConnect.DobotConnect_NoError):
 
+    # Run camera and in case a keyboard was detected, retrieve what position to press to write 'hello world'
     result, hello_im, z_min, ecran = Cfonct.run(api)
 
     if hello_im is not None :
 
-        #print(hello_im)
+        # Write 'hello world' on the keyboard
     
         for b in hello_im :
             x = b[1]

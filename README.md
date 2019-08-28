@@ -97,5 +97,5 @@ When writing a scenario, you will be asked to choose a filename: it should be sa
 
 Here, when pressing 'y', the program compares the image of the screen to the one of your keyboard. I the keyboard is detected, it writes "hello world" (I have an azerty keyboard so it may not write exactly "hello world" on yours).
 
-Make sure you save a capture of your own keyboard as *clavier.jpg* before running *main.py*.
+Make sure you save a capture of your own keyboard as *clavier.jpg* before running *main.py*. You should also modify *hello* tab in *helloCoord* function in *Camfunctions* with the coordinates of 'h', 'e', 'l', 'l', 'o', space, 'w', 'o', 'r', 'l', 'd' in your keyboard image. You can run *hello.py* to get these coordinates and print them in the console.
 
