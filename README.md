@@ -26,7 +26,7 @@ DOBOT Magician's dlls are already provided in folder *FLIR-Flea3-USB3-and-DOBOT-
 Download project:
 
 ```
-git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY
+git clone https://github.com/JulietteDrupt/Using-smartphones-with-a-robot-arm.git
 ```
 
 ## Contents
