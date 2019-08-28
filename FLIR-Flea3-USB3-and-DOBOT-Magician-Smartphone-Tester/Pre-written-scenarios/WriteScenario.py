@@ -119,10 +119,14 @@ def getMouseCoord(event,x,y,flags,param):
     global ix,iy,centroids
     global filename
     global scroll, scrollBeginOk, scrollEndOk
+
+    # If calibration was done and the user clicks on the image
     if event == cv2.EVENT_LBUTTONDOWN and centroids is not None :
+        # Converts click coordinates to the red dots basis
         [ix,iy] = convertCoord([x,y],centroids)
         print("x,y = {},{}\n".format(iy,ix))
         
+        # Write scenario file
         with open(filename,'a') as File :
             if scroll == True :
                 if scrollBeginOk == False :
@@ -136,6 +140,8 @@ def getMouseCoord(event,x,y,flags,param):
             else :
                 File.write("x,y = {},{}\n".format(iy,ix))
 
+
+# OPTIONAL: write screen size in scenrio file. NOTICE: in case you want to use this you should adapt the way scenarios are read in main.py.
 
 def writeSize(centroids):
     d1 = dist(centroids[0],centroids[1])
@@ -174,7 +180,8 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
         global centroids
         global scroll
         global filename
-        
+
+        # Choose file name.
         filename = input("Scenario filename : ")
 
         # Set acquisition mode to continuous
@@ -214,6 +221,8 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
             print('Device serial number retrieved as %s...' % device_serial_number)
 
         # Retrieve, convert, and show images
+
+        # Create 'im' window and associate it the function that will write corresponding instruction in file when get mouse coordinates.
         cv2.namedWindow('im', cv2.WINDOW_NORMAL)
         cv2.setMouseCallback('im',getMouseCoord)
         while(1):
@@ -227,24 +236,33 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
                     print('Image incomplete with image status %d ...' % image_result.GetImageStatus())
 
                 else:
+                    # Retrieve image width and height
                     width = image_result.GetWidth()
                     height = image_result.GetHeight()
 
+                    # Convert image to uint8 numpy array
                     row_bytes = float(len(image_result.GetData()))/width
                     rawFrame = np.array(image_result.GetData(), dtype = "uint8").reshape(height,width)
+                    # Convert image to BGR
                     im = cv2.cvtColor(rawFrame,cv2.COLOR_BAYER_BG2BGR)                   
                     cv2.imshow('im',im)
                     
+                    # Display image in window 'im'
                     k = cv2.waitKey(10) & 0xFF
-                    if k == ord('q') :
+
+                    if k == ord('q') : # Press 'q' to exit
                         break
                     elif k == ord('c') :
                         print("Processing... Please wait... This will take less than a minute...")
+                        # Denoise image
                         dst = cv2.fastNlMeansDenoisingColored(im,None,10,10,7,21)
+                        # Calibrate camera
                         centroids = CamCalibrate(dst)
+                        # Decide whether writing screen size or not
                         writeSizeInFile = input("Do you want to write screen size in the file (y or n)?\n(Screen size will not be read with screen recognition algorithm.)")
                         if writeSizeInFile == 'y' :
                             writeSize(centroids)
+                    # Press 's' to start a scrolling instruction. Click at starting point then ending point.
                     elif k == ord('s') :
                         scroll = True
                         
@@ -254,7 +272,8 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
             except PySpin.SpinnakerException as ex:
                 print('Error: %s' % ex)
                 return False
-            
+
+        # Destroy all OpenCV windows    
         cv2.destroyAllWindows()       
             
         #  End acquisition
