@@ -276,13 +276,14 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
                         screen_size = size(centroids)
                         
                     elif k == ord('y') and centroids is not None :
-                        # Extract screen only as im2
+                        # Extract screen only as im2 and display it
                         im2 = resizeScreen(im,centroids)
                         cv2.imshow('resized',im2)
 
                     elif k == ord('e') and im2 is not None :
                         # Segment im2.
                         markers,stats,centroidsTouches = segmentation(im2)
+                        # Display resulting object markers
                         cv2.imshow('segmentation',markers)
 
                     #  Release image
@@ -297,7 +298,7 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
 
         # Select what are most likely graphical objects beyond those detected by segmentation
         centroidsTouches = getOnlyTouches(stats,centroidsTouches)
-        # Convert graphical objects' coordinates in the red dot's basis.
+        # Convert graphical objects' coordinates to the red dot's basis.
         centroidsTouches = TouchCoordinates(centroidsTouches,centroids)       
             
         #  End acquisition
