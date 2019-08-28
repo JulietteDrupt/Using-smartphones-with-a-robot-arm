@@ -184,23 +184,32 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
                     print('Image incomplete with image status %d ...' % image_result.GetImageStatus())
 
                 else:
+                    # Retriev image width and height
                     width = image_result.GetWidth()
                     height = image_result.GetHeight()
 
+                    # Convert image to uint8 numpy array
                     row_bytes = float(len(image_result.GetData()))/width
                     rawFrame = np.array(image_result.GetData(), dtype = "uint8").reshape(height,width)
+                    # Convert image to BGR
                     im = cv2.cvtColor(rawFrame,cv2.COLOR_BAYER_BG2BGR)
                     
+                    # Display image in window 'im'
                     cv2.imshow('im',im)
                     k = cv2.waitKey(10) & 0xFF
-                    if k == ord('q') :
+                    if k == ord('q') : # Press 'q' to exit.
                         break
                     elif k == ord('c') :
                         print("Processing... Please wait... This will take less than a minute...")
+                        # Denoise image
                         dst = cv2.fastNlMeansDenoisingColored(im,None,10,10,7,21)
+                        # Calibrate camera (with the red dots on calibration screen)
                         centroids = CamCalibrate(dst)
+                        # Find the position of the green dot in the image
                         target = FindGreenTarget(dst)
+                        # Convert green dot's coordinate to the basis defined by the red dots
                         green = GreenCoord(target,centroids)
+                        # Retrieve the dimensions of the rectangle defined by the red dots
                         screen_size = size(centroids)
                         
                     #  Release image
@@ -209,7 +218,8 @@ def acquire_images(cam, nodemap, nodemap_tldevice):
             except PySpin.SpinnakerException as ex:
                 print('Error: %s' % ex)
                 return False,green,screen_size
-            
+
+        # Destroy all OpenCV windows when exiting the loop.   
         cv2.destroyAllWindows()       
             
         #  End acquisition
