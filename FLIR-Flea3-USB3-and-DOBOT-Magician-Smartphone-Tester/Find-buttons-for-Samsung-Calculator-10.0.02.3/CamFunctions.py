@@ -150,8 +150,8 @@ def segmentation(im):
     sure_fg = np.uint8(sure_fg)
     unknown = cv2.subtract(sure_bg,sure_fg)
     ret,markers,stats,centroids = cv2.connectedComponentsWithStats(sure_fg)
-    #print(centroids)
-    #print(centroids.shape)
+    print(centroids)
+    print(centroids.shape)
     markers = markers+1
     markers[unknown == 255] = 0
     markers = cv2.watershed(im,markers)
